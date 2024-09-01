@@ -1,51 +1,49 @@
-
-
 import 'package:dictionary/Models/dictionary_model.dart';
+import 'package:dictionary/Screens/Search_Screen.dart';
+import 'package:dictionary/Screens/answer_Screen.dart';
 import 'package:dictionary/Services/DicService.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:salomon_bottom_bar/salomon_bottom_bar.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
 
   @override
-  State<StatefulWidget> createState() => _HomePageState(); // Use concise syntax
+  _HomePageState createState() => _HomePageState();
 }
 
-class _HomePageState extends State<HomePage> {
+class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin {
   bool isLoading = false;
-  var dataFound = '';
-  var synonyms = '';
-  var example = '';
-  var partOfSpeech = '';
+  String dataFound = '';
+  String synonyms = '';
+  String example = '';
+  String partOfSpeech = '';
   DictionaryModel? myDictionaryModel;
   final TextEditingController controller = TextEditingController();
-
   List<DictionaryModel> searchHistory = [];
 
   void addToHistory(DictionaryModel entry) {
     setState(() {
-      searchHistory.insert(0, entry); // Add new entry at the beginning
+      searchHistory.insert(0, entry);
     });
   }
 
-  void searchMean(var word) async {
+  Future<void> searchMean(String word) async {
     setState(() {
       isLoading = true;
     });
     try {
       myDictionaryModel = await DictionaryService.fetch(word);
-      final definition = myDictionaryModel?.meanings[0].definitions[0].definition;
+      final definition = myDictionaryModel?.meanings?[0].definitions?[0].definition;
       setState(() {
         dataFound = definition ?? 'No Data Found';
-        example = myDictionaryModel?.meanings[0].definitions[0].example ?? '';
-        synonyms = (myDictionaryModel?.meanings[0].definitions[0].synonyms.join(', ') ?? '');
-        // phonetic = myDictionaryModel?.meanings[0].definitions[0].phonetic ?? '';
-        partOfSpeech = myDictionaryModel?.meanings[0].partOfSpeech ?? '';
+        example = myDictionaryModel?.meanings?[0].definitions?[0].example ?? '';
+        synonyms = (myDictionaryModel?.meanings?[0].definitions?[0].synonyms?.join(', ') ?? '');
+        partOfSpeech = myDictionaryModel?.meanings?[0].partOfSpeech ?? '';
         addToHistory(myDictionaryModel!);
       });
     } catch (e) {
-      myDictionaryModel = null;
       setState(() {
         dataFound = 'No Meaning Found for the Given Text ${e.toString()}';
       });
@@ -56,30 +54,62 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
+  late final AnimationController _controller;
+  late final Animation<double> _animation;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      duration: const Duration(milliseconds: 500),
+      vsync: this,
+    )..forward();
+    _animation = CurvedAnimation(
+      parent: _controller,
+      curve: Curves.easeInOut,
+    );
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
-    var commonInputDecoration = InputDecoration(
-      hintText: 'Enter text',
-      hintStyle: const TextStyle(color: Colors.grey),
-      border: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(8.0),
-        borderSide: const BorderSide(color: Colors.grey, width: 1.0),
-      ),
-      focusedBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(8.0),
-        borderSide: const BorderSide(color: Colors.blue, width: 2.0),
+    final screenHeight = MediaQuery.of(context).size.height;
+    final screenWidth = MediaQuery.of(context).size.width;
+
+    SystemChrome.setSystemUIOverlayStyle(
+      SystemUiOverlayStyle(
+        statusBarColor: Color.fromARGB(255, 27, 27, 29),
+        systemNavigationBarColor: Color.fromARGB(255, 27, 27, 29),
       ),
     );
 
-    var containerDecoration = BoxDecoration(
+    final commonInputDecoration = InputDecoration(
+      hintText: 'Enter text',
+      hintStyle: TextStyle(color: Colors.grey),
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(8.0),
+        borderSide: BorderSide(color: Colors.grey, width: 1.0),
+      ),
+      focusedBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(8.0),
+        borderSide: BorderSide(color: Colors.blue, width: 2.0),
+      ),
+    );
+
+    final containerDecoration = BoxDecoration(
       borderRadius: BorderRadius.circular(8.0),
       border: Border.all(color: Colors.grey, width: 1.0),
     );
 
     return Scaffold(
       appBar: AppBar(
-        elevation: 10,
-        title: const Text.rich(
+        elevation: 0,
+        title: Text.rich(
           TextSpan(
             children: [
               TextSpan(
@@ -129,141 +159,172 @@ class _HomePageState extends State<HomePage> {
       body: SizedBox(
         width: double.infinity,
         child: SingleChildScrollView(
-          child: Column(
-            children: [
-              Row(
-                children: [
-                  Expanded(
-                    child: Padding(
-                      padding: const EdgeInsets.all(16.0),
-                      child: SizedBox(
-                        height: 150,
-                        child: RawKeyboardListener(
-                          focusNode: FocusNode(),
-                          onKey: (RawKeyEvent event) {
-                            if (event.isKeyPressed(LogicalKeyboardKey.enter)) {
-                              searchMean(controller.text);
-                              controller.clear();
-                            }
-                          },
-                          child: TextField(
-                            keyboardType: TextInputType.multiline,
-                            controller: controller,
-                            maxLines: null,
-                            expands: true,
-                            decoration: commonInputDecoration,
-                          ),
-                        ),
-                      ),
+          child: Padding(
+            padding: EdgeInsets.all(16.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                SizedBox(
+                  height: 100,
+                  child: RawKeyboardListener(
+                    focusNode: FocusNode(),
+                    onKey: (RawKeyEvent event) {
+                      if (event.isKeyPressed(LogicalKeyboardKey.enter)) {
+                        searchMean(controller.text);
+                        controller.clear();
+                      }
+                    },
+                    child: TextField(
+                      keyboardType: TextInputType.multiline,
+                      controller: controller,
+                      maxLines: null,
+                      expands: true,
+                      decoration: commonInputDecoration,
                     ),
                   ),
-                  Expanded(
-                    child: Padding(
-                      padding: const EdgeInsets.all(16.0),
-                      child: SingleChildScrollView(
-                        child: SizedBox(
-                          height: 150,
-                          child: Container(
-                            decoration: containerDecoration,
-                            padding: const EdgeInsets.all(12.0),
-                            child: Center(
-                              child: isLoading
-                                  ? const CircularProgressIndicator()
-                                  : Column(
-                                    children: [
-                                      Text.rich(
-                                        TextSpan(
-                                          children: [
-                                            const TextSpan(
-                                              text: 'Translation: ',
-                                              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                                            ),
-                                            TextSpan(
-                                              text: dataFound,
-                                              style: const TextStyle(fontSize: 16),
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                      if (partOfSpeech.isNotEmpty)
-                                        Expanded(
-                                          child: Text.rich(
-                                            TextSpan(
-                                              children: [
-                                                const TextSpan(
-                                                  text: 'Part of Speech: ',
-                                                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                                                ),
-                                                TextSpan(
-                                                  text: partOfSpeech,
-                                                  style: const TextStyle(fontSize: 16),
-                                                ),
-                                              ],
-                                            ),
-                                          ),
-                                        ),
-                                      if (example.isNotEmpty)
-                                        Text.rich(
-                                          TextSpan(
-                                            children: [
-                                              const TextSpan(
-                                                text: 'Example: ',
-                                                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                                              ),
-                                              TextSpan(
-                                                text: example,
-                                                style: const TextStyle(fontSize: 16),
-                                              ),
-                                            ],
-                                          ),
-                                        ),
-                                      if (synonyms.isNotEmpty)
-                                        Text.rich(
-                                          TextSpan(
-                                            children: [
-                                             const TextSpan(
-                                                text: 'Synonyms: ',
-                                                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                                              ),
-                                              TextSpan(
-                                                text: synonyms,
-                                                style: const TextStyle(fontSize: 16),
-                                              ),
-                                            ],
-                                          ),
-                                        ),
-                                    ]
-                                  ),
+                ),
+                SizedBox(height: 16),
+                if (isLoading)
+                  Center(child: CircularProgressIndicator())
+                else if (dataFound.isNotEmpty)
+                  AnimatedOpacity(
+                    opacity: _animation.value,
+                    duration: const Duration(milliseconds: 500),
+                    child: Container(
+                      decoration: containerDecoration,
+                      padding: EdgeInsets.all(16.0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text.rich(
+                            TextSpan(
+                              children: [
+                                TextSpan(
+                                  text: 'Translation: ',
+                                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                                ),
+                                TextSpan(
+                                  text: dataFound,
+                                  style: TextStyle(fontSize: 18),
+                                ),
+                              ],
                             ),
                           ),
-                        ),
+                          if (partOfSpeech.isNotEmpty)
+                            Padding(
+                              padding: EdgeInsets.only(top: 8),
+                              child: Text.rich(
+                                TextSpan(
+                                  children: [
+                                    TextSpan(
+                                      text: 'Part of Speech: ',
+                                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                                    ),
+                                    TextSpan(
+                                      text: partOfSpeech,
+                                      style: TextStyle(fontSize: 16),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          if (example.isNotEmpty)
+                            Padding(
+                              padding: EdgeInsets.only(top: 8),
+                              child: Text.rich(
+                                TextSpan(
+                                  children: [
+                                    TextSpan(
+                                      text: 'Example: ',
+                                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                                    ),
+                                    TextSpan(
+                                      text: example,
+                                      style: TextStyle(fontSize: 16),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          if (synonyms.isNotEmpty)
+                            Padding(
+                              padding: EdgeInsets.only(top: 8),
+                              child: Text.rich(
+                                TextSpan(
+                                  children: [
+                                    TextSpan(
+                                      text: 'Synonyms: ',
+                                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                                    ),
+                                    TextSpan(
+                                      text: synonyms,
+                                      style: TextStyle(fontSize: 16),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                        ],
                       ),
                     ),
                   ),
-                ],
-              ),
-              searchHistory.isEmpty // Handle empty history
-                  ? const Center(child: Text('No search history yet.'))
-                  : ListView.builder(
-                shrinkWrap: true, // This is the key change
-                itemCount: searchHistory.length,
-                itemBuilder: (context, index) {
-                  final entry = searchHistory[index];
-                  return Card(
-                    margin: const EdgeInsets.all(8.0),
-                    child: ListTile(
-                      title: Text(entry.word),
-                      subtitle: Text(entry.meanings.isNotEmpty
-                          ? entry.meanings[0].definitions[0].definition
-                          : ''),
-                    ),
-                  );
-                },
-              ),
-            ],
+                SizedBox(height: 16),
+                if (searchHistory.isEmpty)
+                  Center(child: Text('No search history yet.', style: TextStyle(fontSize: 16)))
+                else
+                  ListView.builder(
+                    shrinkWrap: true,
+                    physics: NeverScrollableScrollPhysics(),
+                    itemCount: searchHistory.length,
+                    itemBuilder: (context, index) {
+                      final entry = searchHistory[index];
+                      return Card(
+                        margin: EdgeInsets.symmetric(vertical: 8.0),
+                        child: ListTile(
+                          title: Text(entry.word, style: TextStyle(fontSize: 18)),
+                          subtitle: Text(entry.meanings.isNotEmpty
+                              ? entry.meanings[0].definitions[0].definition
+                              : '',
+                              style: TextStyle(fontSize: 16)),
+                        ),
+                      );
+                    },
+                  ),
+              ],
+            ),
           ),
         ),
+      ),
+      bottomNavigationBar: SalomonBottomBar(
+        currentIndex: 0,
+        onTap: (index) {
+          if (index == 0) {
+            return DictionaryApp();
+          } else if (index == 1) {
+            return DictionaryHomePage();
+          } else if (index == 2) {
+            return AnswerPage(word: 'hello',);
+          }
+        },
+        items: [
+          SalomonBottomBarItem(
+            icon: Icon(Icons.home),
+            title: Text('Home'),
+            selectedColor: Colors.blue,
+          ),
+          SalomonBottomBarItem(
+            icon: Icon(Icons.history),
+            title: Text('History'),
+            selectedColor: Colors.orange,
+          ),
+          SalomonBottomBarItem(
+            icon: Icon(Icons.question_answer),
+            title: Text('Answer'),
+            selectedColor: Colors.green,
+          ),
+        ],
       ),
     );
   }
 }
+
