@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 
 
-class DictionaryHomePage extends StatefulWidget {
-  const DictionaryHomePage({super.key});
+class SearchHistory extends StatefulWidget {
+  const SearchHistory({super.key});
 
   @override
-  State<DictionaryHomePage> createState() => _DictionaryHomePageState();
+  State<SearchHistory> createState() => _DictionaryHomePageState();
 }
 
-class _DictionaryHomePageState extends State<DictionaryHomePage> {
+class _DictionaryHomePageState extends State<SearchHistory> {
   String _selectedLanguage = 'English (US)';
   String _enteredWord = '';
   String _definition = '';
