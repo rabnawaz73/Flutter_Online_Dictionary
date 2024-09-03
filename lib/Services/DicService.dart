@@ -18,6 +18,7 @@ class DictionaryService{
     }catch(e){
       throw Exception(e.toString());
     }
+        return null;
 
 
   }

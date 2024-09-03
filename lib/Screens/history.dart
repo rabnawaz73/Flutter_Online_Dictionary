@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 class SearchHistory extends StatefulWidget {
   final List<DictionaryModel> historyList;
 
-  SearchHistory({super.key, required this.historyList});
+  const SearchHistory({super.key, required this.historyList});
 
   @override
   State<SearchHistory> createState() => _SearchHistoryState();
@@ -18,7 +18,7 @@ class _SearchHistoryState extends State<SearchHistory> {
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: widget.historyList.isEmpty
-            ? Center(
+            ? const Center(
                 child: Text(
                   'No search history yet.',
                   style: TextStyle(fontSize: 16, color: Colors.grey),
@@ -30,15 +30,15 @@ class _SearchHistoryState extends State<SearchHistory> {
                   final entry = widget.historyList[index];
                   return Card(
                     elevation: 4.0,
-                    margin: EdgeInsets.symmetric(vertical: 8.0),
+                    margin: const EdgeInsets.symmetric(vertical: 8.0),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(10.0),
                     ),
                     child: ListTile(
-                      contentPadding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+                      contentPadding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
                       title: Text(
                         entry.word,
-                        style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                        style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                       ),
                       subtitle: Text(
                         entry.meanings.isNotEmpty
@@ -47,24 +47,24 @@ class _SearchHistoryState extends State<SearchHistory> {
                         style: TextStyle(fontSize: 16, color: Colors.grey[600]),
                       ),
                       trailing: IconButton(
-                        icon: Icon(Icons.clear, color: Colors.red),
+                        icon: const Icon(Icons.clear, color: Colors.red),
                         onPressed: () {
                           // Show a dialog to confirm deletion
                           showDialog(
                             context: context,
                             builder: (BuildContext context) {
                               return AlertDialog(
-                                title: Text('Delete History Item'),
-                                content: Text('Are you sure you want to delete this item?'),
+                                title: const Text('Delete History Item'),
+                                content: const Text('Are you sure you want to delete this item?'),
                                 actions: [
                                   TextButton(
-                                    child: Text('Cancel'),
+                                    child: const Text('Cancel'),
                                     onPressed: () {
                                       Navigator.of(context).pop();
                                     },
                                   ),
                                   TextButton(
-                                    child: Text('Delete'),
+                                    child: const Text('Delete'),
                                     onPressed: () {
                                       setState(() {
                                         widget.historyList.removeAt(index);

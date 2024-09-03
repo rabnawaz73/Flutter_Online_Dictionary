@@ -9,19 +9,19 @@ class AnswerPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.grey.shade100,
-      body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              _buildHeader(),
-              SizedBox(height: 20),
-              _buildMainContent(),
-            ],
+      body:  SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _buildHeader(),
+                const SizedBox(height: 20),
+                _buildMainContent(),
+              ],
+            ),
           ),
         ),
-      ),
     );
   }
 
@@ -32,14 +32,14 @@ class AnswerPage extends StatelessWidget {
         children: [
           Text(
             dictionaryModel?.word ?? 'No word',
-            style: TextStyle(
+            style: const TextStyle(
               fontSize: 36,
               fontWeight: FontWeight.bold,
               color: Colors.blueAccent,
             ),
           ),
-          SizedBox(height: 10),
-          Text(
+          const SizedBox(height: 10),
+          const Text(
             'Here’s what we found for you:',
             style: TextStyle(
               fontSize: 18,
@@ -57,10 +57,10 @@ class AnswerPage extends StatelessWidget {
         children: [
           if (dictionaryModel?.meanings.isNotEmpty ?? false)
             _buildMeaningSection(dictionaryModel!),
-          SizedBox(height: 20),
+          const SizedBox(height: 20),
           if (dictionaryModel?.meanings.isNotEmpty ?? false)
             _buildExamplesSection(dictionaryModel!),
-          SizedBox(height: 20),
+          const SizedBox(height: 20),
           if (dictionaryModel?.meanings.isNotEmpty ?? false)
             _buildSynonymsSection(dictionaryModel!),
         ],
@@ -86,7 +86,7 @@ class AnswerPage extends StatelessWidget {
 
   Widget _buildSynonymsSection(DictionaryModel model) {
     return _buildSectionContainer(
-      color: Color.fromARGB(255, 228, 226, 209),
+      color: const Color.fromARGB(255, 228, 226, 209),
       title: 'Synonyms',
       content: model.meanings[0].definitions[0].definition ?? 'No synonyms available',
     );
@@ -105,7 +105,7 @@ class AnswerPage extends StatelessWidget {
         boxShadow: [
           BoxShadow(
             color: Colors.grey.shade300,
-            offset: Offset(0, 2),
+            offset: const Offset(0, 2),
             blurRadius: 4,
           ),
         ],
@@ -115,16 +115,16 @@ class AnswerPage extends StatelessWidget {
         children: [
           Text(
             title,
-            style: TextStyle(
+            style: const TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.bold,
               color: Colors.blueAccent,
             ),
           ),
-          SizedBox(height: 8),
+          const SizedBox(height: 8),
           Text(
             content,
-            style: TextStyle(
+            style: const TextStyle(
               fontSize: 16,
               color: Colors.black87,
             ),
