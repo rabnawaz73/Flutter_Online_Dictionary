@@ -25,7 +25,7 @@ class _SearchScreenState extends State<SearchScreen>
   final List<DictionaryModel> searchHistory = [];
   late AnimationController _animationController;
   late Animation<double> _animation;
-  
+
   // Dropdown related variables
   String dropdownValue = 'English to English';
 
@@ -133,18 +133,53 @@ class _SearchScreenState extends State<SearchScreen>
           ),
         ],
       ),
-      appBar: AppBar(
-        title: Text('Search Dictionary'),
-        backgroundColor: Colors.blueGrey[900],
+      appBar: PreferredSize(
+      preferredSize: Size.fromHeight(80.0),
+      child: AppBar(
+        automaticallyImplyLeading: false,
+        title: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16.0),
+          child: Row(
+            children: [
+              Icon(Icons.book, size: 32, color: Colors.white), // Add your desired icon or logo
+              SizedBox(width: 10),
+              Text(
+                'WordWonder',
+                style: TextStyle(
+                  fontSize: 28,
+                  fontWeight: FontWeight.w900,
+                  color: Colors.white,
+                  letterSpacing: 1.2,
+                ),
+              ),
+            ],
+          ),
+        ),
+        centerTitle: true,
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        flexibleSpace: Container(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              colors: [Colors.purple[800]!, Colors.pink[400]!], // Change the gradient colors to your preference
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+            ),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.3),
+                spreadRadius: 5,
+                blurRadius: 15,
+                offset: Offset(0, 3),
+              ),
+            ],
+          ),
+        ),
       ),
+    ),
       body: _buildCurrentScreen(),
     );
   }
-
-
-
-  
-
 
   Widget _buildCurrentScreen() {
     switch (_currentIndex) {
@@ -162,25 +197,37 @@ class _SearchScreenState extends State<SearchScreen>
     }
   }
 
+
+
   Widget home() {
-    return Center(
+  return SingleChildScrollView(
+    child: Center(
       child: Padding(
         padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 24.0),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            // Online Image
+            // Circular Avatar with Local Asset Image
             Container(
               margin: EdgeInsets.only(bottom: 20.0),
-              child: Image.network(
-                'https://images.unsplash.com/photo-1581092330016-3f09f0da3f54?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=MnwzNjUyOXwwfDF8c2VhcmNofDJ8fGRpY3Rpb25hcnl8ZW58MHx8fHwxNjg3MTI4OTYx&ixlib=rb-1.2.1&q=80&w=800',
-                fit: BoxFit.cover,
-                height: 200,
-                width: double.infinity,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.grey.withOpacity(0.5),
+                    spreadRadius: 4,
+                    blurRadius: 10,
+                    offset: Offset(0, 4),
+                  ),
+                ],
+              ),
+              child: CircleAvatar(
+                radius: 100,
+                backgroundImage: AssetImage('assets/image.png'),
               ),
             ),
-
-            // Dropdown Menu
+    
+            // Decorative Dropdown Menu
             Container(
               padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
               decoration: BoxDecoration(
@@ -217,9 +264,9 @@ class _SearchScreenState extends State<SearchScreen>
                 ),
               ),
             ),
-
+    
             SizedBox(height: 20.0),
-
+    
             // Search TextField
             Container(
               decoration: BoxDecoration(
@@ -245,9 +292,9 @@ class _SearchScreenState extends State<SearchScreen>
                 },
               ),
             ),
-
+    
             SizedBox(height: 24),
-
+    
             // Loading Indicator or Results
             if (isLoading)
               Center(child: CircularProgressIndicator())
@@ -296,8 +343,7 @@ class _SearchScreenState extends State<SearchScreen>
                                 TextSpan(
                                   text: 'Part of Speech: ',
                                   style: TextStyle(
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.bold),
+                                      fontSize: 16, fontWeight: FontWeight.bold),
                                 ),
                                 TextSpan(
                                   text: partOfSpeech,
@@ -316,8 +362,7 @@ class _SearchScreenState extends State<SearchScreen>
                                 TextSpan(
                                   text: 'Example: ',
                                   style: TextStyle(
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.bold),
+                                      fontSize: 16, fontWeight: FontWeight.bold),
                                 ),
                                 TextSpan(
                                   text: example,
@@ -336,8 +381,7 @@ class _SearchScreenState extends State<SearchScreen>
                                 TextSpan(
                                   text: 'Synonyms: ',
                                   style: TextStyle(
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.bold),
+                                      fontSize: 16, fontWeight: FontWeight.bold),
                                 ),
                                 TextSpan(
                                   text: synonyms,
@@ -354,6 +398,8 @@ class _SearchScreenState extends State<SearchScreen>
           ],
         ),
       ),
-    );
-  }
+    ),
+  );
+}
+
 }
