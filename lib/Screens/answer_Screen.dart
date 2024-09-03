@@ -8,43 +8,128 @@ class AnswerPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text('Answer for "${dictionaryModel?.word}"'),
-      ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text(
-              'Translation: ${dictionaryModel?.word}',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-            ),
-            if (dictionaryModel?.meanings.isNotEmpty ?? false)
-              Padding(
-                padding: EdgeInsets.only(top: 8),
-                child: Text(
-                  'Part of Speech: ${dictionaryModel?.meanings[0].partOfSpeech}',
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                ),
-              ),
-            if (dictionaryModel?.meanings.isNotEmpty ?? false)
-              Padding(
-                padding: EdgeInsets.only(top: 8),
-                child: Text(
-                  'Example: ${dictionaryModel?.meanings[0].definitions[0].definition}',
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                ),
-              ),
-            if (dictionaryModel?.meanings.isNotEmpty ?? false)
-              Padding(
-                padding: EdgeInsets.only(top: 8),
-                child: Text(
-                  'Synonyms: ${dictionaryModel?.meanings[0].definitions[0].definition}',
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                ),
-              ),
-          ],
+      backgroundColor: Colors.grey.shade100,
+      body: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _buildHeader(),
+              SizedBox(height: 20),
+              _buildMainContent(),
+            ],
+          ),
         ),
+      ),
+    );
+  }
+
+  Widget _buildHeader() {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Text(
+            dictionaryModel?.word ?? 'No word',
+            style: TextStyle(
+              fontSize: 36,
+              fontWeight: FontWeight.bold,
+              color: Colors.blueAccent,
+            ),
+          ),
+          SizedBox(height: 10),
+          Text(
+            'Here’s what we found for you:',
+            style: TextStyle(
+              fontSize: 18,
+              color: Colors.black54,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildMainContent() {
+    return Expanded(
+      child: ListView(
+        children: [
+          if (dictionaryModel?.meanings.isNotEmpty ?? false)
+            _buildMeaningSection(dictionaryModel!),
+          SizedBox(height: 20),
+          if (dictionaryModel?.meanings.isNotEmpty ?? false)
+            _buildExamplesSection(dictionaryModel!),
+          SizedBox(height: 20),
+          if (dictionaryModel?.meanings.isNotEmpty ?? false)
+            _buildSynonymsSection(dictionaryModel!),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildMeaningSection(DictionaryModel model) {
+    return _buildSectionContainer(
+      color: Colors.lightBlue.shade50,
+      title: 'Part of Speech',
+      content: model.meanings[0].partOfSpeech ?? 'Unknown',
+    );
+  }
+
+  Widget _buildExamplesSection(DictionaryModel model) {
+    return _buildSectionContainer(
+      color: Colors.lightGreen.shade50,
+      title: 'Example',
+      content: model.meanings[0].definitions[0].definition ?? 'No example available',
+    );
+  }
+
+  Widget _buildSynonymsSection(DictionaryModel model) {
+    return _buildSectionContainer(
+      color: Color.fromARGB(255, 228, 226, 209),
+      title: 'Synonyms',
+      content: model.meanings[0].definitions[0].definition ?? 'No synonyms available',
+    );
+  }
+
+  Widget _buildSectionContainer({
+    required Color color,
+    required String title,
+    required String content,
+  }) {
+    return Container(
+      padding: const EdgeInsets.all(16.0),
+      decoration: BoxDecoration(
+        color: color,
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey.shade300,
+            offset: Offset(0, 2),
+            blurRadius: 4,
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            title,
+            style: TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+              color: Colors.blueAccent,
+            ),
+          ),
+          SizedBox(height: 8),
+          Text(
+            content,
+            style: TextStyle(
+              fontSize: 16,
+              color: Colors.black87,
+            ),
+          ),
+        ],
       ),
     );
   }

@@ -1,5 +1,6 @@
 import 'package:dictionary/Models/dictionary_model.dart';
 import 'package:dictionary/Screens/answer_Screen.dart';
+
 import 'package:dictionary/Screens/history.dart';
 import 'package:dictionary/Services/DicService.dart';
 import 'package:flutter/material.dart';
@@ -13,7 +14,7 @@ class SearchScreen extends StatefulWidget {
 
 class _SearchScreenState extends State<SearchScreen>
     with SingleTickerProviderStateMixin {
-  var currentWidget;
+  int _currentIndex = 0;
   bool isLoading = false;
   String dataFound = '';
   String synonyms = '';
@@ -24,6 +25,9 @@ class _SearchScreenState extends State<SearchScreen>
   final List<DictionaryModel> searchHistory = [];
   late AnimationController _animationController;
   late Animation<double> _animation;
+  
+  // Dropdown related variables
+  String dropdownValue = 'English to English';
 
   @override
   void initState() {
@@ -59,13 +63,10 @@ class _SearchScreenState extends State<SearchScreen>
           searchHistory.insert(0, myDictionaryModel!);
           _animationController.forward();
 
-          currentWidget =
-              AnswerPage(dictionaryModel: myDictionaryModel, word: word);
+          // Update the current index to show the AnswerPage
+          _currentIndex = 2;
         });
-
-        // Navigate to the AnswerPage
       } else {
-        // Handle the case where the API returns no data
         setState(() {
           isLoading = false;
           dataFound = '';
@@ -75,7 +76,6 @@ class _SearchScreenState extends State<SearchScreen>
         });
       }
     } catch (e) {
-      // Handle the error
       setState(() {
         isLoading = false;
         dataFound = '';
@@ -88,48 +88,37 @@ class _SearchScreenState extends State<SearchScreen>
   }
 
   final commonInputDecoration = InputDecoration(
-    hintText: 'Enter text',
-    hintStyle: TextStyle(color: Colors.grey),
+    hintText: 'Enter word to search',
+    hintStyle: TextStyle(color: Colors.grey[500], fontSize: 16),
+    filled: true,
+    fillColor: Colors.white,
+    contentPadding: EdgeInsets.symmetric(horizontal: 20.0, vertical: 15.0),
     border: OutlineInputBorder(
-      borderRadius: BorderRadius.circular(8.0),
-      borderSide: BorderSide(color: Colors.grey, width: 1.0),
+      borderRadius: BorderRadius.circular(30.0),
+      borderSide: BorderSide.none,
     ),
+    prefixIcon: Icon(Icons.search, color: Colors.grey[600]),
     focusedBorder: OutlineInputBorder(
-      borderRadius: BorderRadius.circular(8.0),
+      borderRadius: BorderRadius.circular(30.0),
       borderSide: BorderSide(color: Colors.blue, width: 2.0),
     ),
-  );
-
-  final containerDecoration = BoxDecoration(
-    borderRadius: BorderRadius.circular(8.0),
-    border: Border.all(color: Colors.grey, width: 1.0),
   );
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.blueGrey[50],
       bottomNavigationBar: SalomonBottomBar(
-        currentIndex: 0,
+        currentIndex: _currentIndex,
         onTap: (index) {
-          if (index == 0) {
-            setState(() {
-              currentWidget = SearchScreen();
-            });
-          } else if (index == 1) {
-            setState(() {
-              currentWidget = const SearchHistory();
-            });
-          } else {
-            currentWidget = AnswerPage(
-              dictionaryModel: myDictionaryModel,
-              word: 'Nothing is searched',
-            );
-          }
+          setState(() {
+            _currentIndex = index;
+          });
         },
         items: [
           SalomonBottomBarItem(
-            icon: Icon(Icons.home),
-            title: Text('Home'),
+            icon: Icon(Icons.search),
+            title: Text('Search'),
             selectedColor: Colors.blue,
           ),
           SalomonBottomBarItem(
@@ -145,161 +134,224 @@ class _SearchScreenState extends State<SearchScreen>
         ],
       ),
       appBar: AppBar(
-        title: Text('Search'),
+        title: Text('Search Dictionary'),
+        backgroundColor: Colors.blueGrey[900],
       ),
-      body: home(),
+      body: _buildCurrentScreen(),
     );
   }
 
+
+
+  
+
+
+  Widget _buildCurrentScreen() {
+    switch (_currentIndex) {
+      case 0:
+        return home();
+      case 1:
+        return SearchHistory(historyList: searchHistory);
+      case 2:
+        return AnswerPage(
+          dictionaryModel: myDictionaryModel,
+          word: dataFound.isEmpty ? 'Nothing is searched' : dataFound,
+        );
+      default:
+        return home();
+    }
+  }
+
   Widget home() {
-    return SizedBox(
-      width: double.infinity,
-      child: SingleChildScrollView(
-        child: Padding(
-          padding: EdgeInsets.all(16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              SizedBox(
-                height: 100,
-                child: RawKeyboardListener(
-                  focusNode: FocusNode(),
-                  onKey: (RawKeyEvent event) {
-                    if (event.isKeyPressed(LogicalKeyboardKey.enter)) {
-                      searchMean(controller.text);
-                      controller.clear();
-                    }
+    return Center(
+      child: Padding(
+        padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 24.0),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            // Online Image
+            Container(
+              margin: EdgeInsets.only(bottom: 20.0),
+              child: Image.network(
+                'https://images.unsplash.com/photo-1581092330016-3f09f0da3f54?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=MnwzNjUyOXwwfDF8c2VhcmNofDJ8fGRpY3Rpb25hcnl8ZW58MHx8fHwxNjg3MTI4OTYx&ixlib=rb-1.2.1&q=80&w=800',
+                fit: BoxFit.cover,
+                height: 200,
+                width: double.infinity,
+              ),
+            ),
+
+            // Dropdown Menu
+            Container(
+              padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(30.0),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.grey.withOpacity(0.3),
+                    spreadRadius: 2,
+                    blurRadius: 5,
+                    offset: Offset(0, 3),
+                  ),
+                ],
+              ),
+              child: DropdownButtonHideUnderline(
+                child: DropdownButton<String>(
+                  value: dropdownValue,
+                  icon: Icon(Icons.arrow_drop_down, color: Colors.grey[600]),
+                  iconSize: 24,
+                  elevation: 16,
+                  style: TextStyle(color: Colors.grey[700], fontSize: 16),
+                  onChanged: (String? newValue) {
+                    setState(() {
+                      dropdownValue = newValue!;
+                    });
                   },
-                  child: TextField(
-                    keyboardType: TextInputType.multiline,
-                    controller: controller,
-                    maxLines: null,
-                    expands: true,
-                    decoration: commonInputDecoration,
+                  items: <String>['English to English']
+                      .map<DropdownMenuItem<String>>((String value) {
+                    return DropdownMenuItem<String>(
+                      value: value,
+                      child: Text(value),
+                    );
+                  }).toList(),
+                ),
+              ),
+            ),
+
+            SizedBox(height: 20.0),
+
+            // Search TextField
+            Container(
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(30.0),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.grey.withOpacity(0.5),
+                    spreadRadius: 2,
+                    blurRadius: 10,
+                    offset: Offset(0, 5),
+                  ),
+                ],
+              ),
+              child: TextField(
+                controller: controller,
+                keyboardType: TextInputType.text,
+                decoration: commonInputDecoration,
+                textInputAction: TextInputAction.search,
+                onSubmitted: (value) {
+                  searchMean(value);
+                  controller.clear();
+                },
+              ),
+            ),
+
+            SizedBox(height: 24),
+
+            // Loading Indicator or Results
+            if (isLoading)
+              Center(child: CircularProgressIndicator())
+            else if (dataFound.isNotEmpty)
+              AnimatedOpacity(
+                opacity: _animation.value,
+                duration: const Duration(milliseconds: 500),
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(10.0),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.grey.withOpacity(0.5),
+                        spreadRadius: 2,
+                        blurRadius: 10,
+                        offset: Offset(0, 5),
+                      ),
+                    ],
+                  ),
+                  padding: EdgeInsets.all(16.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text.rich(
+                        TextSpan(
+                          children: [
+                            TextSpan(
+                              text: 'Translation: ',
+                              style: TextStyle(
+                                  fontSize: 18, fontWeight: FontWeight.bold),
+                            ),
+                            TextSpan(
+                              text: dataFound,
+                              style: TextStyle(fontSize: 18),
+                            ),
+                          ],
+                        ),
+                      ),
+                      if (partOfSpeech.isNotEmpty)
+                        Padding(
+                          padding: EdgeInsets.only(top: 8),
+                          child: Text.rich(
+                            TextSpan(
+                              children: [
+                                TextSpan(
+                                  text: 'Part of Speech: ',
+                                  style: TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.bold),
+                                ),
+                                TextSpan(
+                                  text: partOfSpeech,
+                                  style: TextStyle(fontSize: 16),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      if (example.isNotEmpty)
+                        Padding(
+                          padding: EdgeInsets.only(top: 8),
+                          child: Text.rich(
+                            TextSpan(
+                              children: [
+                                TextSpan(
+                                  text: 'Example: ',
+                                  style: TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.bold),
+                                ),
+                                TextSpan(
+                                  text: example,
+                                  style: TextStyle(fontSize: 16),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      if (synonyms.isNotEmpty)
+                        Padding(
+                          padding: EdgeInsets.only(top: 8),
+                          child: Text.rich(
+                            TextSpan(
+                              children: [
+                                TextSpan(
+                                  text: 'Synonyms: ',
+                                  style: TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.bold),
+                                ),
+                                TextSpan(
+                                  text: synonyms,
+                                  style: TextStyle(fontSize: 16),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                    ],
                   ),
                 ),
               ),
-              SizedBox(height: 16),
-              if (isLoading)
-                Center(child: CircularProgressIndicator())
-              else if (dataFound.isNotEmpty)
-                AnimatedOpacity(
-                  opacity: _animation.value,
-                  duration: const Duration(milliseconds: 500),
-                  child: Container(
-                    decoration: containerDecoration,
-                    padding: EdgeInsets.all(16.0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text.rich(
-                          TextSpan(
-                            children: [
-                              TextSpan(
-                                text: 'Translation: ',
-                                style: TextStyle(
-                                    fontSize: 18, fontWeight: FontWeight.bold),
-                              ),
-                              TextSpan(
-                                text: dataFound,
-                                style: TextStyle(fontSize: 18),
-                              ),
-                            ],
-                          ),
-                        ),
-                        if (partOfSpeech.isNotEmpty)
-                          Padding(
-                            padding: EdgeInsets.only(top: 8),
-                            child: Text.rich(
-                              TextSpan(
-                                children: [
-                                  TextSpan(
-                                    text: 'Part of Speech: ',
-                                    style: TextStyle(
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.bold),
-                                  ),
-                                  TextSpan(
-                                    text: partOfSpeech,
-                                    style: TextStyle(fontSize: 16),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                        if (example.isNotEmpty)
-                          Padding(
-                            padding: EdgeInsets.only(top: 8),
-                            child: Text.rich(
-                              TextSpan(
-                                children: [
-                                  TextSpan(
-                                    text: 'Example: ',
-                                    style: TextStyle(
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.bold),
-                                  ),
-                                  TextSpan(
-                                    text: example,
-                                    style: TextStyle(fontSize: 16),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                        if (synonyms.isNotEmpty)
-                          Padding(
-                            padding: EdgeInsets.only(top: 8),
-                            child: Text.rich(
-                              TextSpan(
-                                children: [
-                                  TextSpan(
-                                    text: 'Synonyms: ',
-                                    style: TextStyle(
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.bold),
-                                  ),
-                                  TextSpan(
-                                    text: synonyms,
-                                    style: TextStyle(fontSize: 16),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                      ],
-                    ),
-                  ),
-                ),
-              SizedBox(height: 16),
-              if (searchHistory.isEmpty)
-                Center(
-                  child: Text('No search history yet.',
-                      style: TextStyle(fontSize: 16)),
-                )
-              else
-                ListView.builder(
-                  shrinkWrap: true,
-                  physics: NeverScrollableScrollPhysics(),
-                  itemCount: searchHistory.length,
-                  itemBuilder: (context, index) {
-                    final entry = searchHistory[index];
-                    return Card(
-                      margin: EdgeInsets.symmetric(vertical: 8.0),
-                      child: ListTile(
-                        title: Text(entry.word, style: TextStyle(fontSize: 18)),
-                        subtitle: Text(
-                          entry.meanings.isNotEmpty
-                              ? entry.meanings[0].definitions[0].definition
-                              : '',
-                          style: TextStyle(fontSize: 16),
-                        ),
-                      ),
-                    );
-                  },
-                ),
-            ],
-          ),
+          ],
         ),
       ),
     );
