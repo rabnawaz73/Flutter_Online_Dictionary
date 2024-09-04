@@ -20,7 +20,7 @@ class _AnswerPageState extends State<AnswerPage> {
   void initState() {
     super.initState();
     _bannerAd = BannerAd(
-      adUnitId: 'ca-app-pub-7871959041432035/7049347514',
+      adUnitId: 'ca-app-pub-7871959041432035/2556069745',
       size: AdSize.banner,
       request: AdRequest(),
       listener: BannerAdListener(

@@ -102,7 +102,7 @@ class _SearchScreenState extends State<SearchScreen>
     );
     _animation = Tween<double>(begin: 0, end: 1).animate(_animationController);
     _bannerAd = BannerAd(
-      adUnitId: 'ca-app-pub-7871959041432035/7049347514',
+      adUnitId: 'ca-app-pub-7871959041432035/2556069745',
       size: AdSize.banner,
       request: AdRequest(),
       listener: BannerAdListener(
