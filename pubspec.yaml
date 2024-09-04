@@ -41,6 +41,7 @@ dependencies:
   window_manager: ^0.4.2
   salomon_bottom_bar: ^3.3.2
   google_fonts: ^6.2.1
+  google_mobile_ads: ^5.1.0
   
 
 dev_dependencies:

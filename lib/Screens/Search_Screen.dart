@@ -5,6 +5,7 @@ import 'package:dictionary/Screens/history.dart';
 import 'package:dictionary/Services/DicService.dart';
 import 'package:flutter/material.dart';
 import 'package:salomon_bottom_bar/salomon_bottom_bar.dart';
+import 'package:google_mobile_ads/google_mobile_ads.dart';
 
 class SearchScreen extends StatefulWidget {
   const SearchScreen({super.key});
@@ -29,23 +30,6 @@ class _SearchScreenState extends State<SearchScreen>
 
   // Dropdown related variables
   String dropdownValue = 'English to English';
-
-  @override
-  void initState() {
-    super.initState();
-    _animationController = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 500),
-    );
-    _animation = Tween<double>(begin: 0, end: 1).animate(_animationController);
-  }
-
-  @override
-  void dispose() {
-    _animationController.dispose();
-    controller.dispose();
-    super.dispose();
-  }
 
   void searchMean(String word) async {
     setState(() {
@@ -93,7 +77,8 @@ class _SearchScreenState extends State<SearchScreen>
     hintStyle: TextStyle(color: Colors.grey[500], fontSize: 16),
     filled: true,
     fillColor: Colors.white,
-    contentPadding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 15.0),
+    contentPadding:
+        const EdgeInsets.symmetric(horizontal: 20.0, vertical: 15.0),
     border: OutlineInputBorder(
       borderRadius: BorderRadius.circular(30.0),
       borderSide: BorderSide.none,
@@ -105,10 +90,46 @@ class _SearchScreenState extends State<SearchScreen>
     ),
   );
 
+  late BannerAd _bannerAd;
+  bool _isAdLoaded = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _animationController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 500),
+    );
+    _animation = Tween<double>(begin: 0, end: 1).animate(_animationController);
+    _bannerAd = BannerAd(
+      adUnitId: 'ca-app-pub-7871959041432035/7049347514',
+      size: AdSize.banner,
+      request: AdRequest(),
+      listener: BannerAdListener(
+        onAdLoaded: (Ad ad) {
+          setState(() {
+            _isAdLoaded = true;
+          });
+        },
+        onAdFailedToLoad: (Ad ad, LoadAdError error) {
+          ad.dispose();
+        },
+      ),
+    );
+    _bannerAd.load();
+  }
+
+  @override
+  void dispose() {
+    _bannerAd.dispose();
+    _animationController.dispose();
+    controller.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.blueGrey[50],
       bottomNavigationBar: SalomonBottomBar(
         currentIndex: _currentIndex,
         onTap: (index) {
@@ -135,50 +156,63 @@ class _SearchScreenState extends State<SearchScreen>
         ],
       ),
       appBar: PreferredSize(
-      preferredSize: const Size.fromHeight(80.0),
-      child: AppBar(
-        automaticallyImplyLeading: false,
-        title: const Padding(
-          padding: EdgeInsets.symmetric(horizontal: 16.0),
-          child: Row(
-            children: [
-              Icon(Icons.book, size: 32, color: Colors.white), // Add your desired icon or logo
-              SizedBox(width: 10),
-              Text(
-                'WordWonder',
-                style: TextStyle(
-                  fontSize: 28,
-                  fontWeight: FontWeight.w900,
-                  color: Colors.white,
-                  letterSpacing: 1.2,
+        preferredSize: const Size.fromHeight(80.0),
+        child: AppBar(
+          automaticallyImplyLeading: false,
+          title: const Padding(
+            padding: EdgeInsets.symmetric(horizontal: 16.0),
+            child: Row(
+              children: [
+                Icon(Icons.book, size: 32, color: Colors.white),
+                SizedBox(width: 10),
+                Text(
+                  'WordWonder',
+                  style: TextStyle(
+                    fontSize: 28,
+                    fontWeight: FontWeight.w900,
+                    color: Colors.white,
+                    letterSpacing: 1.2,
+                  ),
                 ),
-              ),
-            ],
-          ),
-        ),
-        centerTitle: true,
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        flexibleSpace: Container(
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              colors: [Colors.purple[800]!, Colors.pink[400]!], // Change the gradient colors to your preference
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
+              ],
             ),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withOpacity(0.3),
-                spreadRadius: 5,
-                blurRadius: 15,
-                offset: const Offset(0, 3),
+          ),
+          centerTitle: true,
+          backgroundColor: Colors.transparent,
+          elevation: 0,
+          flexibleSpace: Container(
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: [Colors.purple[800]!, Colors.pink[400]!],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
               ),
-            ],
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.3),
+                  spreadRadius: 5,
+                  blurRadius: 15,
+                  offset: const Offset(0, 3),
+                ),
+              ],
+            ),
           ),
         ),
       ),
-    ),
-      body: _buildCurrentScreen(),
+      body: Stack(
+        children: [
+          _buildCurrentScreen(),
+          if (_isAdLoaded)
+            Align(
+              alignment: Alignment.bottomCenter,
+              child: SizedBox(
+                height: _bannerAd.size.height.toDouble(),
+                width: _bannerAd.size.width.toDouble(),
+                child: AdWidget(ad: _bannerAd),
+              ),
+            ),
+        ],
+      ),
     );
   }
 
@@ -198,232 +232,235 @@ class _SearchScreenState extends State<SearchScreen>
     }
   }
 
-
-
- Widget home() {
-  return SingleChildScrollView(
-    child: Center(
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 24.0),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            // Circular Avatar with Local Asset Image
-            Container(
-              margin: const EdgeInsets.only(bottom: 20.0),
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.grey.withOpacity(0.5),
-                    spreadRadius: 4,
-                    blurRadius: 10,
-                    offset: const Offset(0, 4),
-                  ),
-                ],
-              ),
-              child: const CircleAvatar(
-                radius: 100,
-                backgroundImage: AssetImage('assets/image.png'),
-              ),
-            ),
-
-            // Decorative Dropdown Menu
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(30.0),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.grey.withOpacity(0.3),
-                    spreadRadius: 2,
-                    blurRadius: 5,
-                    offset: const Offset(0, 3),
-                  ),
-                ],
-              ),
-              child: DropdownButtonHideUnderline(
-                child: DropdownButton<String>(
-                  value: dropdownValue,
-                  icon: Icon(Icons.arrow_drop_down, color: Colors.grey[600]),
-                  iconSize: 24,
-                  elevation: 16,
-                  style: TextStyle(color: Colors.grey[700], fontSize: 16),
-                  onChanged: (String? newValue) {
-                    setState(() {
-                      dropdownValue = newValue!;
-                    });
-                  },
-                  items: <String>['English to English']
-                      .map<DropdownMenuItem<String>>((String value) {
-                    return DropdownMenuItem<String>(
-                      value: value,
-                      child: Text(value),
-                    );
-                  }).toList(),
+  Widget home() {
+    return SingleChildScrollView(
+      child: Center(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 24.0),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              // Circular Avatar with Local Asset Image
+              Container(
+                margin: const EdgeInsets.only(bottom: 20.0),
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.grey.withOpacity(0.5),
+                      spreadRadius: 4,
+                      blurRadius: 10,
+                      offset: const Offset(0, 4),
+                    ),
+                  ],
+                ),
+                child: const CircleAvatar(
+                  radius: 100,
+                  backgroundImage: AssetImage('assets/image.png'),
                 ),
               ),
-            ),
 
-            const SizedBox(height: 20.0),
-
-            // Search TextField
-            Container(
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(30.0),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.grey.withOpacity(0.5),
-                    spreadRadius: 2,
-                    blurRadius: 10,
-                    offset: const Offset(0, 5),
-                  ),
-                ],
-              ),
-              child: TextField(
-                controller: controller,
-                keyboardType: TextInputType.text,
-                decoration: commonInputDecoration,
-                textInputAction: TextInputAction.done,
-              ),
-            ),
-
-            const SizedBox(height: 24),
-
-            // Beautiful Search Button
-            ElevatedButton(
-              onPressed: () {
-                searchMean(controller.text);
-                controller.clear();
-              },
-              style: ElevatedButton.styleFrom(
-                foregroundColor: Colors.white, backgroundColor: Colors.purple[800], // Text color
-                shadowColor: Colors.purpleAccent.withOpacity(0.5), // Shadow color
-                elevation: 5,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(30.0), // Rounded button
+              // Decorative Dropdown Menu
+              Container(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(30.0),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.grey.withOpacity(0.3),
+                      spreadRadius: 2,
+                      blurRadius: 5,
+                      offset: const Offset(0, 3),
+                    ),
+                  ],
                 ),
-                padding: const EdgeInsets.symmetric(horizontal: 30.0, vertical: 15.0),
-              ),
-              child: const Text(
-                'Search',
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
+                child: DropdownButtonHideUnderline(
+                  child: DropdownButton<String>(
+                    value: dropdownValue,
+                    icon: Icon(Icons.arrow_drop_down, color: Colors.grey[600]),
+                    iconSize: 24,
+                    elevation: 16,
+                    style: TextStyle(color: Colors.grey[700], fontSize: 16),
+                    onChanged: (String? newValue) {
+                      setState(() {
+                        dropdownValue = newValue!;
+                      });
+                    },
+                    items: <String>['English to English']
+                        .map<DropdownMenuItem<String>>((String value) {
+                      return DropdownMenuItem<String>(
+                        value: value,
+                        child: Text(value),
+                      );
+                    }).toList(),
+                  ),
                 ),
               ),
-            ),
 
-            const SizedBox(height: 24),
+              const SizedBox(height: 20.0),
 
-            // Loading Indicator or Results
-            if (isLoading)
-              const Center(child: CircularProgressIndicator())
-            else if (dataFound.isNotEmpty)
-              AnimatedOpacity(
-                opacity: _animation.value,
-                duration: const Duration(milliseconds: 500),
-                child: Container(
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(10.0),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.grey.withOpacity(0.5),
-                        spreadRadius: 2,
-                        blurRadius: 10,
-                        offset: const Offset(0, 5),
-                      ),
-                    ],
+              // Search TextField
+              Container(
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(30.0),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.grey.withOpacity(0.5),
+                      spreadRadius: 2,
+                      blurRadius: 10,
+                      offset: const Offset(0, 5),
+                    ),
+                  ],
+                ),
+                child: TextField(
+                  controller: controller,
+                  keyboardType: TextInputType.text,
+                  decoration: commonInputDecoration,
+                  textInputAction: TextInputAction.done,
+                ),
+              ),
+
+              const SizedBox(height: 24),
+
+              // Beautiful Search Button
+              ElevatedButton(
+                onPressed: () {
+                  searchMean(controller.text);
+                  controller.clear();
+                },
+                style: ElevatedButton.styleFrom(
+                  foregroundColor: Colors.white,
+                  backgroundColor: Colors.purple[800], // Text color
+                  shadowColor:
+                      Colors.purpleAccent.withOpacity(0.5), // Shadow color
+                  elevation: 5,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(30.0), // Rounded button
                   ),
-                  padding: const EdgeInsets.all(16.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text.rich(
-                        TextSpan(
-                          children: [
-                            const TextSpan(
-                              text: 'Translation: ',
-                              style: TextStyle(
-                                  fontSize: 18, fontWeight: FontWeight.bold),
-                            ),
-                            TextSpan(
-                              text: dataFound,
-                              style: const TextStyle(fontSize: 18),
-                            ),
-                          ],
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: 30.0, vertical: 15.0),
+                ),
+                child: const Text(
+                  'Search',
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+
+              const SizedBox(height: 24),
+
+              // Loading Indicator or Results
+              if (isLoading)
+                const Center(child: CircularProgressIndicator())
+              else if (dataFound.isNotEmpty)
+                AnimatedOpacity(
+                  opacity: _animation.value,
+                  duration: const Duration(milliseconds: 500),
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(10.0),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.grey.withOpacity(0.5),
+                          spreadRadius: 2,
+                          blurRadius: 10,
+                          offset: const Offset(0, 5),
                         ),
-                      ),
-                      if (partOfSpeech.isNotEmpty)
-                        Padding(
-                          padding: const EdgeInsets.only(top: 8),
-                          child: Text.rich(
-                            TextSpan(
-                              children: [
-                                const TextSpan(
-                                  text: 'Part of Speech: ',
-                                  style: TextStyle(
-                                      fontSize: 16, fontWeight: FontWeight.bold),
-                                ),
-                                TextSpan(
-                                  text: partOfSpeech,
-                                  style: const TextStyle(fontSize: 16),
-                                ),
-                              ],
-                            ),
+                      ],
+                    ),
+                    padding: const EdgeInsets.all(16.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text.rich(
+                          TextSpan(
+                            children: [
+                              const TextSpan(
+                                text: 'Translation: ',
+                                style: TextStyle(
+                                    fontSize: 18, fontWeight: FontWeight.bold),
+                              ),
+                              TextSpan(
+                                text: dataFound,
+                                style: const TextStyle(fontSize: 18),
+                              ),
+                            ],
                           ),
                         ),
-                      if (example.isNotEmpty)
-                        Padding(
-                          padding: const EdgeInsets.only(top: 8),
-                          child: Text.rich(
-                            TextSpan(
-                              children: [
-                                const TextSpan(
-                                  text: 'Example: ',
-                                  style: TextStyle(
-                                      fontSize: 16, fontWeight: FontWeight.bold),
-                                ),
-                                TextSpan(
-                                  text: example,
-                                  style: const TextStyle(fontSize: 16),
-                                ),
-                              ],
+                        if (partOfSpeech.isNotEmpty)
+                          Padding(
+                            padding: const EdgeInsets.only(top: 8),
+                            child: Text.rich(
+                              TextSpan(
+                                children: [
+                                  const TextSpan(
+                                    text: 'Part of Speech: ',
+                                    style: TextStyle(
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.bold),
+                                  ),
+                                  TextSpan(
+                                    text: partOfSpeech,
+                                    style: const TextStyle(fontSize: 16),
+                                  ),
+                                ],
+                              ),
                             ),
                           ),
-                        ),
-                      if (synonyms.isNotEmpty)
-                        Padding(
-                          padding: const EdgeInsets.only(top: 8),
-                          child: Text.rich(
-                            TextSpan(
-                              children: [
-                                const TextSpan(
-                                  text: 'Synonyms: ',
-                                  style: TextStyle(
-                                      fontSize: 16, fontWeight: FontWeight.bold),
-                                ),
-                                TextSpan(
-                                  text: synonyms,
-                                  style: const TextStyle(fontSize: 16),
-                                ),
-                              ],
+                        if (example.isNotEmpty)
+                          Padding(
+                            padding: const EdgeInsets.only(top: 8),
+                            child: Text.rich(
+                              TextSpan(
+                                children: [
+                                  const TextSpan(
+                                    text: 'Example: ',
+                                    style: TextStyle(
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.bold),
+                                  ),
+                                  TextSpan(
+                                    text: example,
+                                    style: const TextStyle(fontSize: 16),
+                                  ),
+                                ],
+                              ),
                             ),
                           ),
-                        ),
-                    ],
+                        if (synonyms.isNotEmpty)
+                          Padding(
+                            padding: const EdgeInsets.only(top: 8),
+                            child: Text.rich(
+                              TextSpan(
+                                children: [
+                                  const TextSpan(
+                                    text: 'Synonyms: ',
+                                    style: TextStyle(
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.bold),
+                                  ),
+                                  TextSpan(
+                                    text: synonyms,
+                                    style: const TextStyle(fontSize: 16),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                      ],
+                    ),
                   ),
                 ),
-              ),
-          ],
+            ],
+          ),
         ),
       ),
-    ),
-  );
-}
-
-
+    );
+  }
 }

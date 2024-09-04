@@ -1,15 +1,16 @@
-import 'package:dictionary/Screens/Search_Screen.dart';
-import 'package:dictionary/Screens/SplashScreen.dart';
 import 'package:flutter/material.dart';
+import 'package:google_mobile_ads/google_mobile_ads.dart';
+import 'package:dictionary/Screens/SplashScreen.dart';
 
 void main() {
+  WidgetsFlutterBinding.ensureInitialized();
+  MobileAds.instance.initialize();
   runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -23,8 +24,3 @@ class MyApp extends StatelessWidget {
     );
   }
 }
-
-
-
-
-

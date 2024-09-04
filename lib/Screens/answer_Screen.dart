@@ -1,27 +1,78 @@
 import 'package:dictionary/Models/dictionary_model.dart';
 import 'package:flutter/material.dart';
+import 'package:google_mobile_ads/google_mobile_ads.dart';
 
-class AnswerPage extends StatelessWidget {
+class AnswerPage extends StatefulWidget {
   final DictionaryModel? dictionaryModel;
-  const AnswerPage({super.key, required this.dictionaryModel, required String word});
+  final String word;
+
+  const AnswerPage({super.key, required this.dictionaryModel, required this.word});
+
+  @override
+  _AnswerPageState createState() => _AnswerPageState();
+}
+
+class _AnswerPageState extends State<AnswerPage> {
+  late BannerAd _bannerAd;
+  bool _isAdLoaded = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _bannerAd = BannerAd(
+      adUnitId: 'ca-app-pub-7871959041432035/7049347514',
+      size: AdSize.banner,
+      request: AdRequest(),
+      listener: BannerAdListener(
+        onAdLoaded: (Ad ad) {
+          setState(() {
+            _isAdLoaded = true;
+          });
+        },
+        onAdFailedToLoad: (Ad ad, LoadAdError error) {
+          ad.dispose();
+        },
+      ),
+    );
+    _bannerAd.load();
+  }
+
+  @override
+  void dispose() {
+    _bannerAd.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.grey.shade100,
-      body:  SafeArea(
-          child: Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                _buildHeader(),
-                const SizedBox(height: 20),
-                _buildMainContent(),
-              ],
+      body: SafeArea(
+        child: Stack(
+          children: [
+            Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _buildHeader(),
+                  const SizedBox(height: 20),
+                  _buildMainContent(),
+                ],
+              ),
             ),
-          ),
+            if (_isAdLoaded)
+              Align(
+                alignment: Alignment.bottomCenter,
+                child: SizedBox(
+                  height: _bannerAd.size.height.toDouble(),
+                  width: _bannerAd.size.width.toDouble(),
+                  child: AdWidget(ad: _bannerAd),
+                ),
+              ),
+          ],
         ),
+      ),
     );
   }
 
@@ -31,7 +82,7 @@ class AnswerPage extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Text(
-            dictionaryModel?.word ?? 'No word',
+            widget.dictionaryModel?.word ?? 'No word',
             style: const TextStyle(
               fontSize: 36,
               fontWeight: FontWeight.bold,
@@ -55,14 +106,14 @@ class AnswerPage extends StatelessWidget {
     return Expanded(
       child: ListView(
         children: [
-          if (dictionaryModel?.meanings.isNotEmpty ?? false)
-            _buildMeaningSection(dictionaryModel!),
+          if (widget.dictionaryModel?.meanings.isNotEmpty ?? false)
+            _buildMeaningSection(widget.dictionaryModel!),
           const SizedBox(height: 20),
-          if (dictionaryModel?.meanings.isNotEmpty ?? false)
-            _buildExamplesSection(dictionaryModel!),
+          if (widget.dictionaryModel?.meanings.isNotEmpty ?? false)
+            _buildExamplesSection(widget.dictionaryModel!),
           const SizedBox(height: 20),
-          if (dictionaryModel?.meanings.isNotEmpty ?? false)
-            _buildSynonymsSection(dictionaryModel!),
+          if (widget.dictionaryModel?.meanings.isNotEmpty ?? false)
+            _buildSynonymsSection(widget.dictionaryModel!),
         ],
       ),
     );

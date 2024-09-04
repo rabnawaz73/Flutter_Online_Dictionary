@@ -1,6 +1,5 @@
 import 'package:dictionary/Screens/Search_Screen.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/animation.dart';
 
 class SplashScreen extends StatefulWidget {
   @override
