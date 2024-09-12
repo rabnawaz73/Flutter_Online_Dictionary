@@ -1,4 +1,4 @@
-import 'package:dictionary/Models/dictionary_model.dart';
+import 'package:wordwonder/Models/dictionary_model.dart';
 import 'package:flutter/material.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 

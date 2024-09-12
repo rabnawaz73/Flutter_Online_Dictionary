@@ -1,4 +1,4 @@
-import 'package:dictionary/Screens/Search_Screen.dart';
+import 'package:wordwonder/Screens/Search_Screen.dart';
 import 'package:flutter/material.dart';
 
 class SplashScreen extends StatefulWidget {

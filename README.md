@@ -1,4 +1,4 @@
-# dictionary
+# wordwonder
 
 A new Flutter project.
 

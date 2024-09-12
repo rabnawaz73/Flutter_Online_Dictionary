@@ -1,8 +1,8 @@
-import 'package:dictionary/Models/dictionary_model.dart';
-import 'package:dictionary/Screens/answer_Screen.dart';
+import 'package:wordwonder/Models/dictionary_model.dart';
+import 'package:wordwonder/Screens/answer_Screen.dart';
 
-import 'package:dictionary/Screens/history.dart';
-import 'package:dictionary/Services/DicService.dart';
+import 'package:wordwonder/Screens/history.dart';
+import 'package:wordwonder/Services/DicService.dart';
 import 'package:flutter/material.dart';
 import 'package:salomon_bottom_bar/salomon_bottom_bar.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';

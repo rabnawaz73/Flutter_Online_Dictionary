@@ -1,9 +1,9 @@
 // In the widget where you want to display the ad
 
-import 'package:dictionary/Models/dictionary_model.dart';
+import 'package:wordwonder/Models/dictionary_model.dart';
 import 'package:flutter/material.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
-import 'package:dictionary/custom_native_ad.dart';
+import 'package:wordwonder/custom_native_ad.dart';
 
 class SearchHistory extends StatefulWidget {
   final List<DictionaryModel> historyList;
