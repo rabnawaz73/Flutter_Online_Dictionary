@@ -317,6 +317,9 @@ class _SearchScreenState extends State<SearchScreen>
                 ),
                 child: TextField(
                   controller: controller,
+                  onSubmitted: (vale){
+                    searchMean(controller.text);
+                  },
                   keyboardType: TextInputType.text,
                   decoration: commonInputDecoration,
                   textInputAction: TextInputAction.done,
@@ -329,7 +332,7 @@ class _SearchScreenState extends State<SearchScreen>
               ElevatedButton(
                 onPressed: () {
                   searchMean(controller.text);
-                  controller.clear();
+                  
                 },
                 style: ElevatedButton.styleFrom(
                   foregroundColor: Colors.white,
