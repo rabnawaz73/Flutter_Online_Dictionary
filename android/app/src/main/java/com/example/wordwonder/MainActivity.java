@@ -1,4 +1,4 @@
-package com.example.wordwonder;
+package com.rabnawaz.wordwonder;
 
 import io.flutter.embedding.android.FlutterActivity;
 
