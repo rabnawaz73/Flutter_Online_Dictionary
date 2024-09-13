@@ -10,7 +10,7 @@ def keystoreProperties = new Properties()
 keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
 
 android {
-    namespace = "com.example.wordwonder"
+    namespace = "com.rabnawaz.wordwonder"
     compileSdk = flutter.compileSdkVersion
     ndkVersion = flutter.ndkVersion
 
